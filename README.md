@@ -11,8 +11,7 @@
 - 本地编译环境：
 
   - Markdown编辑器使用[Typora](https://typora.io/)
-  
-    - 主题使用[Drake](https://theme.typora.io/theme/Drake/)
+  - 主题使用[Drake](https://theme.typora.io/theme/Drake/)
 
 
 
@@ -39,8 +38,13 @@
   - 这是一份自己学习机器学习从入门到跑路的记录。
   - 内容还在不断更新中。
   - 如果本仓库存在的内容对您和您的利益产生损害，请立即私信，我们将在最短时间内对其做出处理。
-  
+  - 支持版本
 
+  |  技术  | 版本 |
+  | :----: | :--: |
+  | python | 3.7  |
+  
+  
   
 - 鸣谢：
 
