@@ -146,13 +146,9 @@ $$
 
 代码地址：
 
-自编程实现1
+[自编程实现](https://github.com/Nicolas-gaofeng/Salute_Machine_Learning/tree/main/code/knn/self_knn)
 
-自编程实现2
-
-kdtree
-
-sklearn实现
+[sklearn实现](https://github.com/Nicolas-gaofeng/Salute_Machine_Learning/tree/main/code/knn/sklearn_knn)
 
 ### 6.1 kd树原理的讲解
 
@@ -452,7 +448,7 @@ knn 算法按照距离最近的三部电影的类型，决定未知电影的类�
 
 ### 3.1 项目案例1: 优化约会网站的配对效果
 
-> [代码地址](/src/py2.x/ml/2.KNN/kNN.py)
+> [代码地址](https://github.com/Nicolas-gaofeng/Salute_Machine_Learning/tree/main/code/knn/project_knn/project0)
 
 #### 项目概述
 
@@ -483,7 +479,7 @@ knn 算法按照距离最近的三部电影的类型，决定未知电影的类�
 
 ### 3.2 项目案例2: 手写数字识别系统
 
-> [代码地址](/src/py2.x/ml/2.KNN/kNN.py): <https://github.com/apachecn/AiLearning/blob/master/src/py2.x/ml/2.KNN/kNN.py>
+> [代码地址](https://github.com/Nicolas-gaofeng/Salute_Machine_Learning/tree/main/code/knn/project_knn/project1)
 
 #### 项目概述
 
