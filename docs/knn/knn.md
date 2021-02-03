@@ -1,16 +1,27 @@
-## 一、KNN 概述
+## 1. KNN 概述
 
-k-近邻（kNN, k-NearestNeighbor）算法是一种基本分类与回归方法，我们这里只讨论分类问题中的 k-近邻算法。
+k近邻法(k-nearest neighbors)是由Cover和Hart于1968年提出的，它是懒惰学习(lazy learning)的著名代表。
+
+k-近邻算法是一种基本分类与回归方法，我们这里只讨论分类问题中的 k-近邻算法。
 
 **一句话总结: 近朱者赤近墨者黑！** 
 
-k近邻算法的输入为实例的特征向量，对应于特征空间的点；输出为实例的类别，可以取多类。k近邻算法假设给定一个训练数据集，其中的实例类别已定。分类时，对新的实例，根据其 k 个最近邻的训练实例的类别，通过`多数表决`等方式进行预测。因此，k近邻算法不具有显式的学习过程。
+k近邻算法的输入为实例的特征向量，对应于特征空间的点；输出为实例的类别，可以取多类。k近邻算法假设给定一个训练数据集，其中的实例类别已定。分类时，对新的实例，根据其 k 个最近邻的训练实例的类别，通过`多数表决`等方式进行预测。因此，k近邻算法`不具有显式的学习过程`。
 
 k 近邻算法实际上利用训练数据集对特征向量空间进行划分，并作为其分类的“模型”。 `k值的选择`、`距离度量`以及`分类决策规则`是k近邻算法的三个基本要素。
 
 本节的重点是掌握 k-近邻的核心：基于距离的测量方式，例如欧式距离。难点是选取的 k 值不好确定。实际上，可以通过选择不同的 k 值比较分类效果来确定最佳 k 值。此外，需要注意的是，因为是基于距离比较，所以样本各特征之间的取值范围差别较大的时候，应该对特征进行归一化处理，提升分类效果。
 
-## 二、KNN 工作原理
+## 2. KNN 工作原理
+
+![knn](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203085951.png)
+
+如上图所示，有两类不同的样本数据，分别用蓝色的小正方形和红色的小三角形表示，而图正中间的那个绿色的圆所标示的数据则是待分类的数据。这也就是我们的目的，来了一个新的数据点，我要得到它的类别是什么？好的，下面我们根据k近邻的思想来给绿色圆点进行分类。
+
+- 如果K=3，绿色圆点的最邻近的3个点是2个红色小三角形和1个蓝色小正方形，**少数从属于多数，**基于统计的方法，判定绿色的这个待分类点属于红色的三角形一类。
+- 如果K=5，绿色圆点的最邻近的5个邻居是2个红色三角形和3个蓝色的正方形，**还是少数从属于多数，**基于统计的方法，判定绿色的这个待分类点属于蓝色的正方形一类。
+
+K近邻算法的步骤：
 
 1. 假设有一个带有标签的样本数据集（训练样本集），其中包含每条数据与所属分类的对应关系。
 2. 输入没有标签的新数据后，将新数据的每个特征与样本集中数据对应的特征进行比较。
@@ -21,7 +32,7 @@ k 近邻算法实际上利用训练数据集对特征向量空间进行划分，
 
 > 简单来说:  通过距离度量来计算查询点（query point）与每个训练数据点的距离，然后选出与查询点（query point）相近的K个最邻点（K nearest neighbors），使用分类决策来选出对应的标签来作为该查询点的标签。
 
-## 三、KNN 开发流程
+## 3. KNN 开发流程
 
 - 收集数据: 任何方法
 - 准备数据: 距离计算所需要的数值，最好是结构化的数据格式
@@ -30,15 +41,21 @@ k 近邻算法实际上利用训练数据集对特征向量空间进行划分，
 - 测试算法: 计算错误率
 - 使用算法: 输入样本数据和结构化的输出结果，然后运行 k-近邻算法判断输入数据分类属于哪个分类，最后对计算出的分类执行后续处理
 
-## 四、KNN 算法
+## 4. KNN 算法特点
 
-### 4.1 特点
-
-- 优点: 精度高、对异常值不敏感、无数据输入假定
-- 缺点: 计算复杂度高、空间复杂度高
+- 优点: 
+  - 精度高、对异常值不敏感、无数据输入假定
+  - KNN分类方法是一种非参数的分类技术，简单直观，易于实现！只要让预测点分别和训练数据求距离，挑选前k个即可，非常简单直观。
+  - KNN是一种在线技术，新数据可以直接加入数据集而不必进行重新训练
+- 缺点: 
+  - 计算复杂度高、空间复杂度高
+  - 当样本不平衡时，比如一个类的样本容量很大，其他类的样本容量很小，输入一个样本的时候，K个邻近值大多数都是大样本容量的那个类，这时可能会导致分类错误。
+    - 改进方法：对K邻近点进行加权，也就是距离近的权值大，距离远的点权值小。
+  - 计算量较大，每个待分类的样本都要计算它到全部点的距离，根据距离排序才能求得K个临近点。
+    - 改进方法：先对已知样本进行裁剪，事先去除分类作用不大的样本，采取kd树以及其它高级搜索方法BBF等算法减少搜索时间。
 - 适用数据范围: 数值型和标称型
 
-### 4.2 KNN 三要素
+## 5. KNN 三要素
 
 - `K的取值`
 
@@ -46,118 +63,377 @@ k 近邻算法实际上利用训练数据集对特征向量空间进行划分，
 
 如果选择较小的 k 值，就相当于用较小的邻域中的训练实例进行预测，“学习”的近似误差（approximation error）会减小，只有与输入实例较近的（相似的）训练实例才会对预测结果起作用。但缺点是“学习”的估计误差（estimation error）会增大，预测结果会对近邻的实例点非常敏感。如果邻近的实例点恰巧是噪声，预测就会出错。换句话说，k 值的减小就意味着整体模型变得复杂，容易发生过拟合。
 
-如果选择较大的 k 值，就相当于用较大的邻域中的训练实例进行预测。其优点是可以减少学习的估计误差。但缺点是学习的近似误差会增大。这时与输入实例较远的（不相似的）训练实例也会对预测起作用，使预测发生错误。 k 值的增大就意味着整体的模型变得简单。
+假设我们选取k=1这个极端情况，我们有训练数据和待分类点如下图：
 
-太大太小都不太好，可以用交叉验证（cross validation）来选取适合的k值。
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203091944.png)
 
+上图中有俩类，一个是黑色的圆点，一个是蓝色的长方形，现在我们的待分类点是红色的五边形。
 
+好，根据我们的k近邻算法步骤来决定待分类点应该归为哪一类。我们由图中可以得到，很容易我们能够看出来五边形离黑色的圆点最近，k又等于1，那太好了，我们最终判定待分类点是黑色的圆点。
+
+由这个处理过程我们很容易能够感觉出问题了，如果k太小了，比如等于1，那么模型就太复杂了，我们很容易学习到噪声，也就非常容易判定为噪声类别。
+
+如果选择较大的 k 值，就相当于用较大的邻域中的训练实例进行预测。其优点是可以减少学习的估计误差。但缺点是学习的近似误差会增大。这时与输入实例较远的（不相似的）训练实例也会对预测起作用，使预测发生错误。 k 值的增大就意味着整体的模型变得简单。在上图，如果，k大一点，k等于8，把长方形都包括进来，我们很容易得到我们正确的分类应该是蓝色的长方形！如下图：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203092305.png)
+
+我们想，如果k=N（N为训练样本的个数）,那么无论输入实例是什么，都将简单地预测它属于在训练实例中最多的类。这时，模型是不是非常简单，这相当于你压根就没有训练模型呀！直接拿训练数据统计了一下各个数据的类别，找最大的而已！这好像下图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203092626.png)
+
+我们统计了黑色圆形是8个，长方形个数是7个，那么哈哈，如果k=N，我就得出结论了，红色五边形是属于黑色圆形的（明显是错误的好不，捂脸！）
+
+这个时候，模型过于简单，完全忽略训练数据实例中的大量有用信息，是不可取的。
+
+k值既不能过大，也不能过小，在我举的这个例子中，我们k值的选择，在下图红色圆边界之间这个范围是最好的，如下图：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203092729.png)
+
+（注：这里只是为了更好让大家理解，真实例子中不可能只有俩维特征，但是原理是一样的1，我们就是想找到较好的k值大小）
+
+K太大太小都不太好，
+
+那么我们一般怎么选取呢？李航博士书上讲到，我们一般选取一个较小的数值，通常采取 交叉验证法（cross validation）来选取最优的k值。（也就是说，选取k值很重要的关键是实验调参，类似于神经网络选取多少层这种，通过调整超参数来得到一个较好的结果）
 
 - `距离度量 Metric/Distance Measure` 
 
-距离度量 通常为 欧式距离（Euclidean distance），还可以是 Minkowski 距离 或者 曼哈顿距离。也可以是 地理空间中的一些距离公式。
+定义中所说的最邻近是如何度量呢？我们怎么知道谁跟测试点最邻近。这里就会引出我们几种度量两个点之间距离的标准。
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203094527.png)
+
+**特征归一化的必要性**
+
+首先举例如下，我用一个人身高(cm)与脚码（尺码）大小来作为特征值，类别为男性或者女性。我们现在如果有5个训练样本，分布如下：
+
+A [(179,42),男] B [(178,43),男] C [(165,36)女] D [(177,42),男] E [(160,35),女]
+
+通过上述训练样本，我们看出问题了吗？
+
+很容易看到第一维身高特征是第二维脚码特征的4倍左右，那么在进行距离度量的时候，我们就会偏向于第一维特征。这样造成俩个特征并不是等价重要的，最终可能会导致距离计算错误，从而导致预测错误。口说无凭，举例如下：
+
+现在我来了一个测试样本 F(167,43)，让我们来预测他是男性还是女性，我们采取k=3来预测。
+
+下面我们用欧式距离分别算出F离训练样本的欧式距离，然后选取最近的3个，多数类别就是我们最终的结果，计算如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203094300.png)
+
+由计算可以得到，最近的前三个分别是C,D,E三个样本，那么由C,E为女性，D为男性，女性多于男性得到我们要预测的结果为女性。这样问题就来了，一个女性的脚43码的可能性，远远小于男性脚43码的可能性，那么为什么算法还是会预测F为女性呢？那是因为由于各个特征量纲的不同，在这里导致了身高的重要性已经远远大于脚码了，这是不客观的。所以我们应该让每个特征都是同等重要的！这也是我们要归一化的原因！归一化公式如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203094344.png)
+
 
 
 
 - `分类决策 （decision rule）`
 
-分类决策 在 分类问题中 通常为通过少数服从多数 来选取票数最多的标签，在回归问题中通常为 K个最邻点的标签的平均值。
+分类决策 在 分类问题中 通常为通过少数服从多数来选取票数最多的标签，在回归问题中通常为 K个最邻点的标签的平均值。
 
-### 算法: （sklearn 上有三种）
+多数表决规则（majority voting rule）有如下解释：如果分类的损失函数为 0-1 损失函数，分类函数为：
+$$
+f: \mathfrak{R}^{n} \rightarrow c_{1}, c_{2}, \ldots, c_{K}
+$$
+那么误分类的概率是：
+$$
+P(Y \neq f(X))=1-P(Y=f(X))
+$$
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203095403.png)
 
->Brute Force 暴力计算/线性扫描 
+换句话说，目前候选种类为c1,c2....cj，我选择哪一个，使得我们的经验风险最小（经验风险通俗讲就是训练数据的错误值）。
 
->KD Tree 使用二叉树根据数据维度来平分参数空间。
+那么由上式经验风险最小，也就是说，要我们预测出的种类属于cj类的最多（那么预测出来的种类结果和真实结果一致的越多，我们认为正确可能性就越大，也就是经验风险越小），也就是我们所说的多数表决规则。而它也等价于我们的经验风险最小。这也是我们在k近邻算法中采用多数表决规则的正确性说明！
 
->Ball Tree 使用一系列的超球体来平分训练数据集。
+## 6. KNN算法实现
 
->树结构的算法都有建树和查询两个过程。Brute Force 没有建树的过程。
+代码地址：
 
->算法特点:    
+自编程实现1
 
-优点:  High Accuracy， No Assumption on data， not sensitive to outliers
+自编程实现2
 
-缺点: 时间和空间复杂度 高
+kdtree
 
-适用范围:  continuous values and nominal values
+sklearn实现
 
->相似同源产物:  
+### 6.1 kd树原理的讲解
 
-radius neighbors 根据制定的半径来找寻邻点
+KD Tree 使用二叉树根据数据维度来平分参数空间。树结构的算法都有建树和查询两个过程。
 
->影响算法因素: 
+#### 6.1.1 kd 树的结构
 
-N 数据集样本数量(number of samples)， D 数据维度 (number of features)
+kd树是一个二叉树结构，它的每一个节点记载了【特征坐标，切分轴，指向左枝的指针，指向右枝的指针】。
 
->总消耗: 
+其中，特征坐标是线性空间 Rn 中的一个点 (x1,x2,…,xn)，切分轴由一个整数 r 表示，这里 1≤r≤n，是我们在 n 维空间中沿第 rr维进行一次分割。节点的左枝和右枝分别都是 kd 树，并且满足：如果 y 是左枝的一个特征坐标，那么 yr≤xr（左分支结点）；并且如果 z 是右枝的一个特征坐标，那么 zr≥xr（右分支结点）。
 
-Brute Force:  O[DN^2] 
+给定一个数据样本集 S⊆Rn 和切分轴 r，以下递归算法将构建一个基于该数据集的 kd 树，每一次循环制作一个节点：
+−− 如果 |S|=1，记录 S 中唯一的一个点为当前节点的特征数据，并且不设左枝和右枝。（|S| 指集合 S 中元素的数量）
+−− 如果 |S|>1
 
-此处考虑的是最蠢的方法: 把所有训练的点之间的距离都算一遍。当然有更快的实现方式, 比如 O(ND + kN)  和  O(NDK) , 最快的是 O[DN] 。感兴趣的可以阅读这个链接:  [k-NN computational complexity](https://stats.stackexchange.com/questions/219655/k-nn-computational-complexity)
+- 将 S 内所有点按照第 r 个坐标的大小进行排序；
+- 选出该排列后的中位元素（如果一共有偶数个元素，则选择中位左边或右边的元素，左随便哪一个都无所谓），作为当前节点的特征坐标，并且记录切分轴 r；
+- 将 SL设为在 S 中所有排列在中位元素之前的元素； SR 设为在 S 中所有排列在中位元素后的元素；
+- 当前节点的左枝设为以 SL 为数据集并且 r 为切分轴制作出的 kd 树；当前节点的右枝设为以 SR 为数据集并且 r为切分轴制作出的 kd 树。再设 r←(r+1)modn。（这里，我们想轮流沿着每一个维度进行分割；modn 是因为一共有 n 个维度，在沿着最后一个维度进行分割之后再重新回到第一个维度。）
+
+哎呀，到这里有没有一点晕了，下面通过例子一步一步给出kd树的构建，以便容易理解！举出李航博士例子3.2！
+
+#### 6.1.2 kd树的构建
+
+给定一个二维空间的数据集：
+
+T = {（2,3），（5,4），（9,6）,（4,7），（8,1），（7,2）}， 构造一个平衡kd树。
+
+为了方便，我这里进行编号A(2，3)、B（5,4）、C（9,6）、D（4,7）、E（8,1）、F（7,2）
+
+初始值r=0，对应x轴。
+
+可视化数据点如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101018.png)
+
+首先先沿 x 坐标进行切分，我们选出 x 坐标的中位点，获取最根部节点的坐标，对数据点x坐标进行排序得：
+
+A(2，3)、D（4,7）、B（5,4）、F（7,2）、E（8,1）、C（9,6）
+
+则我们得到中位点为B或者F，我这里选择F作为我们的根结点，并作出切分（并得到左右子树），如图：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101056.png)
+
+对应的树结构如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101110.png)
+
+根据算法，此时r=r+1=1，对应y轴，此时对应算法|S|>1，则我们分别递归的在F对应的左子树与右子树按y轴进行分类，得到中位节点分别为B，C点，如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101128.png)
+
+对应树结构为：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101146.png)
+
+而到此时，B的左孩子为A，右孩子为D，C的左孩子为E,均满足|S|==1，此时r = (r+1)mod2 = 0,又满足x轴排序，对x轴划分！则如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101201.png)
+
+对应树结构如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101217.png)
+
+到这里为止，给定的kd树构造完成啦，所有的数据点都能在树上的每个结点找到！而我们根据上面构造树的过程，也能很容易的知道，来了一个新的数据点的时候，对应该层的指定维数，通过比较大小，我就能知道往左（预测点对应维度数据小于该结点对对应维度数据）走还是往右（预测点对应维度数据大于该结点对应维度数据）走，那么好的情况下，我们就能省掉一半的数据点啦~（不好的情况，哈哈，没有节省，后面会说到，这也是kd树的致命缺点~）
+
+到这里为止，我们一步一步给出了kd树的构造过程。这也是李航博士书籍上例子中kd树构造的详细过程！他的图片如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101255.png)
+
+对应kd树为:
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101309.png)
+
+#### 6.1.2 kd树搜索 
+
+我这里和统计学习方法例子一样，以最近邻为例加以叙述，同样的方法可以应用到k近邻。
+
+为了让大家更好的理解，我这里直接用上面例子给大家一步一步给出过程！
+
+首先我们来看用kd树的最近邻搜索算法流程：
+
+输入：已构造的kd树；目标点x；
+
+输出：x的最近邻
+
+（1）在kd树中找出包含目标点x的叶结点：从根结点出发，递归地向下访问kd树，若目标点x当前维的坐标小于切分点的坐标,则移动到左子节点，否则移动到右子结点.直到子结点为叶结点位置.
+
+（2）以此叶结点为“当前最近点”
+
+（3）递归地向上回退，在每个结点进行以下操作：
+
+（a）如果该结点保存的实例点比当前最近点距离目标点更近，则以该实例点为“当前最近点”.
+
+（b）当前最近点一定存在于该结点一个子结点对应的区域.检查该子结点的父结点的另一个子结点对应的区域是否有更近的点.具体地，检查另一子结点对应的区域是否以目标点为球心、以目标点与“当前最近点”间为半径的超球体相交。
+
+如果不相交，向上回退.
+
+（4）当回退到根结点时，搜索结束。最后的“当前最近点”即为最近邻点.
+
+看到这里是不是有点晕了，哈哈，不要怕，下面通过例子，一步一步走一遍上面所描述的算法过程，化抽象为具体！
+
+**kd树最近邻搜索例题：**
+
+给定一个二维空间的数据集：
+
+T = {（2,3），（5,4），（9,6）,（4,7），（8,1），（7,2）}，输入目标实例为K(8.5,1),求K的最近邻。
+
+首先我们由上面可以给出，T的kd树对应如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101339.png)
+
+我们此时的K（8.5,1），根据算法第一步得：第一层的x轴K点为8大于F点的7，所以进入F（7,2）的右子树，进入下面红色线条区域：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101356.png)
+
+到了第二层，分割平面坐标为y轴，K点y轴坐标为1，小于C点y轴坐标6，则继续向右走，在下图红色线条区域内：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101411.png)
+
+则此时算法对应第（1）部分完成，我们找到了叶子节点E（8,1）。
+
+我们进行算法第（2）步，把E（8,1）作为最近邻点。此时我们算一下KE之间的距离为0.5（便于后面步骤用到）.
+
+然后进行算法第（3）步，递归的往上回退，每个结点进行相同步骤，好，我现在从E点回退到C点，对应图片如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101430.png)
+
+此时对C点进行第（3）步的（a）操作，判断一下KC距离与保存的最近邻距离（这时是KE）比较，KC距离为点K（8.5,1）与点C（9,6）之间的距离
+$$
+\sqrt{25.25}>最近邻0.5
+$$
+于是不更新最近邻点。
+
+然后对C点进行第（3）步的（b）操作，判断一下当前最近邻的距离画一个圆是否与C点切割面相交，如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101545.png)
+
+我们很容易看到与C点切割面并没有相交，于是执行由C点回退到它的父结点F点。如图：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101601.png)
+
+对F点进行（a），（b）操作！
+
+进行（a）步骤，判断FK的距离是否小于当前保存的最小值，
+$$
+FK=\sqrt{(7-8.5)^{2}+(2-1)^{2}}=\sqrt{1.25}>0.5
+$$
+，所以不改变最小距离
+
+下面我们进行（b）步骤，为了判断F点的另一半区域是否有更小的点，判断一下当前最近邻的距离画一个圆是否与F点切割面相交，如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101700.png)
+
+发现与任何分割线都没有交点，那么执行算法最后一步，此时F点已经是根结点，无法进行回退，那么我们可以得到我们保留的当前最短距离点E点就是我们要找的最近邻点！任务完成，
+
+并且根据算法流程，我们并没有遍历所有数据点，而是F点的左孩子根本没有遍历，节省了时间，但是并不是所有的kd树都能到达这样的效果。
+
+#### 6.1.3 kd树的不足以及最差情况举例
+
+讲解这个知识点，我还是通过一个例子来直观说明!
+
+给定一个二维空间的数据集：
+
+T = {（2,3），（5,4），（9,6）,（4,7），（8,1），（7,2）}，输入目标实例为K(8,3),求K的最近邻。
+
+首先我们由上面可以给出，T的kd树对应如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101743.png)
+
+
+
+我们此时的K（8,3），根据算法第一步得：第一层的x轴K点为8大于F点的7，所以进入F（7,2）的右子树，进入下面红色线条区域：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101801.png)
+
+（注意：这里叶子节点画不画分割线都没有关系！）
+
+到了第二层，分割平面坐标为y轴，K点y轴坐标为3，小于C点y轴坐标6，则继续向右走，在下图红色线条区域内：
+
+![preview](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101823.png)
+
+则此时算法对应第（1）部分完成，我们找到了叶子节点E（8,1）。
+
+我们进行算法第（2）步，把E（8,1）作为最近邻点。此时我们算一下KE之间的距离为2（便于后面步骤用到）.
+
+然后进行算法第（3）步，递归的往上回退，每个结点进行相同步骤，好，我现在从E点回退到C点，对应图片如下；
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203101844.png)
+
+此时对C点进行第（3）步的（a）操作，判断一下KC距离与保存的最近邻距离（这时是KE）比较，KC距离为点K（8,3）与点C（9,6）之间的距离
+$$
+\sqrt{10}>最近邻2
+$$
+，于是不更新最近邻点。
+
+然后对C点进行第（3）步的（b）操作，判断一下当前最近邻的距离画一个圆是否与C点切割面相交，如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203102013.png)
+
+我们很容易看到与C点切割面并没有相交，于是执行由C点回退到它的父结点F点。如图：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203102034.png)
+
+对F点进行（a），（b）操作！
+
+进行（a）步骤，判断FK的距离是否小于当前保存的最小值，
+$$
+FK=\sqrt{(7-8)^{2}+(2-3)^{2}}=\sqrt{2}<2
+$$
+,所以将最小距离替换为FK的距离！
+
+下面我们进行（b）步骤，为了判断F点的另一半区域是否有更小的点，判断一下当前最近邻的距离画一个圆是否与F点切割面相交，如图所示：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203102130.png)
+
+我们可以看出，此时圆与F点有交点，那么说明F点左侧是有可能存在与K点距离更小的点（注:这里我们人为看起来好像没有，但是计算机不知道，必须搜索下去，只要以当前最小值画圆发现与节点切割面有交点，那么一定要进行搜索，不然数据如果是下图：）
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203102150.png)
+
+如果不进行搜索，我们就可能会漏掉Z数据点，因为KZ比当前最小值KF小！
+
+此时相交，我们就需要再F点的左孩子进行搜索，一直搜索到叶子节点A，然后进行（a），（b）步骤，继续回溯到它的父亲结点B，以及最后到达F点，完成最后的最近邻是F点，这里几乎遍历了所有数据点，几乎退化了为线性时间0（n）了。这也是kd树的最差的情况。
+
+当给定的数据分布很差的时候，我们每一次计算画圆过程中，都会与每一个分割面相交的时候，都会递归搜索到该结点的另一个子空间中遍历，那么这样最坏的情况是进行线性时间搜索！比如构建的kd树和数据分布如下：
+
+![img](https://gitee.com/zgf1366/pic_store/raw/master/img/20210203102215.png)
+
+如图所示，我们可以看到几乎所有的数据离给定预测的点距离很远，每次进行算法第三步判断是否与分割面有交点的时候，几乎每个面都有交点，只要有交点，就必须将该点的另一半结点遍历到叶子结点，重复的进行算法步骤，导致了搜索的低效！
+
+#### 6.1.4 复杂度
 
 KD Tree: O[DN log(N)] 
 
+### 6.2 Brute Force 暴力计算/线性扫描 
+
+使用一系列的超球体来平分训练数据集。Brute Force 没有建树的过程。
+
+#### 6.2.1 算法特点 
+
+- 优点:  
+  - High Accuracy， No Assumption on data， not sensitive to outliers
+
+- 缺点: 
+  - 时间和空间复杂度 高
+
+- 适用范围:  continuous values and nominal values
+
+
+#### 6.2.2 相似同源产物 
+
+radius neighbors 根据制定的半径来找寻邻点
+
+#### 6.2.3 影响算法因素
+
+N 数据集样本数量(number of samples)， D 数据维度 (number of features)
+
+#### 6.2.4 复杂度
+
+此处考虑的是最蠢的方法: 把所有训练的点之间的距离都算一遍。
+
+时间复杂度o(n*k)：n为样本数量，k为单个样本特征的维度。如果不考虑特征维度的粒度为o(n)
+
+空间复杂度o(n*k)：n为样本数量，k为单个样本特征的维度。如果不考虑特征维度的粒度为o(n)
+
+### 6.3 Ball Tree 
+
+树结构的算法都有建树和查询两个过程。
+
+#### 6.3.1 复杂度
+
 Ball Tree: O[DN log(N)] 跟 KD Tree 处于相同的数量级，虽然建树时间会比 KD Tree 久一点，但是在高结构的数据，甚至是高纬度的数据中，查询速度有很大的提升。
 
->查询所需消耗:
-
-Brute Force:  O[DN] 
-
-KD Tree: 当维度比较小的时候， 比如 D<20,  O[Dlog(N)] 。相反，将会趋向于 O[DN] 
-
-Ball Tree: O[Dlog(N)] 
-
-当数据集比较小的时候，比如 N<30的时候，Brute Force 更有优势。
-
->Intrinsic Dimensionality(本征维数) 和 Sparsity（稀疏度）
-
-数据的 intrinsic dimensionality 是指数据所在的流形的维数 d < D , 在参数空间可以是线性或非线性的。稀疏度指的是数据填充参数空间的程度(这与“稀疏”矩阵中使用的概念不同, 数据矩阵可能没有零项, 但是从这个意义上来讲,它的结构 仍然是 "稀疏" 的)。
-
-Brute Force 的查询时间不受影响。
-
-对于 KD Tree 和 Ball Tree的查询时间, 较小本征维数且更稀疏的数据集的查询时间更快。KD Tree 的改善由于通过坐标轴来平分参数空间的自身特性 没有Ball Tree 显著。
-
->k的取值 (k 个邻点)
-
-Brute Force 的查询时间基本不受影响。
-
-但是对于 KD Tree 和 Ball Tree , k越大，查询时间越慢。
-
-k 在N的占比较大的时候，使用 Brute Force 比较好。
-
->Number of Query Points （查询点数量， 即测试数据的数量）
-
-查询点较少的时候用Brute Force。查询点较多的时候可以使用树结构算法。
-
->关于 sklearn 中模型的一些额外干货: 
+### 6.4 sklearn 模型选择
 
 如果KD Tree，Ball Tree 和Brute Force 应用场景傻傻分不清楚，可以直接使用 含有algorithm='auto'的模组。 algorithm='auto' 自动为您选择最优算法。
 有 regressor 和 classifier 可以来选择。
 
 metric/distance measure 可以选择。 另外距离 可以通过weight 来加权。
 
->leaf size 对KD Tree 和 Ball Tree 的影响
-
-建树时间: leaf size 比较大的时候，建树时间也就快点。
-
-查询时间:  leaf size 太大太小都不太好。如果leaf size 趋向于 N（训练数据的样本数量），算法其实就是 brute force了。如果leaf size 太小了，趋向于1，那查询的时候 遍历树的时间就会大大增加。leaf size 建议的数值是 30，也就是默认值。
-
-内存:  leaf size 变大，存树结构的内存变小。
-
->Nearest Centroid Classifier
-
-分类决策是哪个标签的质心与测试点最近，就选哪个标签。
-
-该模型假设在所有维度中方差相同。 是一个很好的base line。
-
->进阶版:  Nearest Shrunken Centroid 
-
-可以通过shrink_threshold来设置。
-
-作用:  可以移除某些影响分类的特征，例如移除噪音特征的影响
-
-
-
-## 五、KNN 使用场景
+## 7. KNN使用场景
 
 电影可以按照题材分类，那么如何区分 动作片 和 爱情片 呢？
 
@@ -176,7 +452,7 @@ knn 算法按照距离最近的三部电影的类型，决定未知电影的类�
 
 ### 3.1 项目案例1: 优化约会网站的配对效果
 
-[完整代码地址](/src/py2.x/ml/2.KNN/kNN.py): <https://github.com/apachecn/AiLearning/blob/master/src/py2.x/ml/2.KNN/kNN.py>
+> [代码地址](/src/py2.x/ml/2.KNN/kNN.py)
 
 #### 项目概述
 
@@ -205,255 +481,9 @@ knn 算法按照距离最近的三部电影的类型，决定未知电影的类�
      测试样本是已经完成分类的数据，如果预测分类与实际类别不同，则标记为一个错误。
 6. 使用算法: 产生简单的命令行程序，然后海伦可以输入一些特征数据以判断对方是否为自己喜欢的类型。
 
-> 收集数据: 提供文本文件
-
-海伦把这些约会对象的数据存放在文本文件 [datingTestSet2.txt](/data/2.KNN/datingTestSet2.txt) 中，总共有 1000 行。海伦约会的对象主要包含以下 3 种特征: 
-
-* 每年获得的飞行常客里程数
-* 玩视频游戏所耗时间百分比
-* 每周消费的冰淇淋公升数
-
-文本文件数据格式如下: 
-
-```
-40920	8.326976	0.953952	3
-14488	7.153469	1.673904	2
-26052	1.441871	0.805124	1
-75136	13.147394	0.428964	1
-38344	1.669788	0.134296	1
-```
-
-> 准备数据: 使用 Python 解析文本文件
-
-将文本记录转换为 NumPy 的解析程序
-
- ```python
-def file2matrix(filename):
-    """
-    Desc:
-        导入训练数据
-    parameters:
-        filename: 数据文件路径
-    return: 
-        数据矩阵 returnMat 和对应的类别 classLabelVector
-    """
-    fr = open(filename)
-    # 获得文件中的数据行的行数
-    numberOfLines = len(fr.readlines())
-    # 生成对应的空矩阵
-    # 例如: zeros(2，3)就是生成一个 2*3的矩阵，各个位置上全是 0 
-    returnMat = zeros((numberOfLines, 3))  # prepare matrix to return
-    classLabelVector = []  # prepare labels return
-    fr = open(filename)
-    index = 0
-    for line in fr.readlines():
-        # str.strip([chars]) --返回已移除字符串头尾指定字符所生成的新字符串
-        line = line.strip()
-        # 以 '\t' 切割字符串
-        listFromLine = line.split('\t')
-        # 每列的属性数据
-        returnMat[index, :] = listFromLine[0:3]
-        # 每列的类别数据，就是 label 标签数据
-        classLabelVector.append(int(listFromLine[-1]))
-        index += 1
-    # 返回数据矩阵returnMat和对应的类别classLabelVector
-    return returnMat, classLabelVector
- ```
-
-> 分析数据: 使用 Matplotlib 画二维散点图
-
-```python
-import matplotlib
-import matplotlib.pyplot as plt
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.scatter(datingDataMat[:, 0], datingDataMat[:, 1], 15.0*array(datingLabels), 15.0*array(datingLabels))
-plt.show()
-```
-
-下图中采用矩阵的第一和第二列属性得到很好的展示效果，清晰地标识了三个不同的样本分类区域，具有不同爱好的人其类别区域也不同。
-
-![knn_matplotlib_2](https://gitee.com/zgf1366/pic_store/raw/master/img/20210130153758.png)
-
-* 归一化数据 （归一化是一个让权重变为统一的过程，更多细节请参考:  https://www.zhihu.com/question/19951858 ）
-
-| 序号 | 玩视频游戏所耗时间百分比 | 每年获得的飞行常客里程数 | 每周消费的冰淇淋公升数 | 样本分类 |
-| ---- | :----------------------: | -----------------------: | ---------------------: | -------: |
-| 1    |           0.8            |                      400 |                    0.5 |        1 |
-| 2    |            12            |                  134 000 |                    0.9 |        3 |
-| 3    |            0             |                   20 000 |                    1.1 |        2 |
-| 4    |            67            |                   32 000 |                    0.1 |        2 |
-
-样本3和样本4的距离: 
-$$
-\sqrt{(0-67)^2 + (20000-32000)^2 + (1.1-0.1)^2 }
-$$
-
-
-归一化特征值，消除特征之间量级不同导致的影响
-
-**归一化定义: ** 我是这样认为的，归一化就是要把你需要处理的数据经过处理后（通过某种算法）限制在你需要的一定范围内。首先归一化是为了后面数据处理的方便，其次是保正程序运行时收敛加快。 方法有如下: 
-
-1) 线性函数转换，表达式如下: 　　
-    
-
-    y=(x-MinValue)/(MaxValue-MinValue)　　
-    
-    说明: x、y分别为转换前、后的值，MaxValue、MinValue分别为样本的最大值和最小值。　　
-
-2) 对数函数转换，表达式如下: 　　
-
-    y=log10(x)　　
-    
-    说明: 以10为底的对数函数转换。
-    
-    如图: 
-    
-    ![对数函数图像](img/knn_1.png)
-
-3) 反余切函数转换，表达式如下: 
-
-    y=arctan(x)*2/PI　
-    
-    如图: 
-    
-    ![反余切函数图像](img/arctan_arccot.gif)
-
-4) 式(1)将输入值换算为[-1,1]区间的值，在输出层用式(2)换算回初始值，其中和分别表示训练样本集中负荷的最大值和最小值。　
-    
-
-在统计学中，归一化的具体作用是归纳统一样本的统计分布性。归一化在0-1之间是统计的概率分布，归一化在-1--+1之间是统计的坐标分布。
-
-
-```python
-def autoNorm(dataSet):
-    """
-    Desc:
-        归一化特征值，消除特征之间量级不同导致的影响
-    parameter:
-        dataSet: 数据集
-    return:
-        归一化后的数据集 normDataSet. ranges和minVals即最小值与范围，并没有用到
-
-    归一化公式: 
-        Y = (X-Xmin)/(Xmax-Xmin)
-        其中的 min 和 max 分别是数据集中的最小特征值和最大特征值。该函数可以自动将数字特征值转化为0到1的区间。
-    """
-    # 计算每种属性的最大值、最小值、范围
-    minVals = dataSet.min(0)
-    maxVals = dataSet.max(0)
-    # 极差
-    ranges = maxVals - minVals
-    normDataSet = zeros(shape(dataSet))
-    m = dataSet.shape[0]
-    # 生成与最小值之差组成的矩阵
-    normDataSet = dataSet - tile(minVals, (m, 1))
-    # 将最小值之差除以范围组成矩阵
-    normDataSet = normDataSet / tile(ranges, (m, 1))  # element wise divide
-    return normDataSet, ranges, minVals
-```
-
-> 训练算法: 此步骤不适用于 k-近邻算法
-
-因为测试数据每一次都要与全量的训练数据进行比较，所以这个过程是没有必要的。
-
-kNN 算法伪代码: 
-
-    对于每一个在数据集中的数据点: 
-        计算目标的数据点（需要分类的数据点）与该数据点的距离
-        将距离排序: 从小到大
-        选取前K个最短距离
-        选取这K个中最多的分类类别
-        返回该类别来作为目标数据点的预测值
-
-```python
-def classify0(inX, dataSet, labels, k):
-    dataSetSize = dataSet.shape[0]
-    #距离度量 度量公式为欧氏距离
-    diffMat = tile(inX, (dataSetSize,1)) – dataSet
-    sqDiffMat = diffMat**2
-    sqDistances = sqDiffMat.sum(axis=1)
-    distances = sqDistances**0.5
-    
-    #将距离排序: 从小到大
-    sortedDistIndicies = distances.argsort()
-    #选取前K个最短距离， 选取这K个中最多的分类类别
-    classCount={}
-    for i in range(k): 
-        voteIlabel = labels[sortedDistIndicies[i]]
-        classCount[voteIlabel] = classCount.get(voteIlabel,0) + 1 
-    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
-    return sortedClassCount[0][0]
-```
-
-
-> 测试算法: 使用海伦提供的部分数据作为测试样本。如果预测分类与实际类别不同，则标记为一个错误。
-
-kNN 分类器针对约会网站的测试代码
-
-```python
-def datingClassTest():
-    """
-    Desc:
-        对约会网站的测试方法
-    parameters:
-        none
-    return:
-        错误数
-    """
-    # 设置测试数据的的一个比例（训练数据集比例=1-hoRatio）
-    hoRatio = 0.1  # 测试范围,一部分测试一部分作为样本
-    # 从文件中加载数据
-    datingDataMat, datingLabels = file2matrix('data/2.KNN/datingTestSet2.txt')  # load data setfrom file
-    # 归一化数据
-    normMat, ranges, minVals = autoNorm(datingDataMat)
-    # m 表示数据的行数，即矩阵的第一维
-    m = normMat.shape[0]
-    # 设置测试的样本数量， numTestVecs:m表示训练样本的数量
-    numTestVecs = int(m * hoRatio)
-    print 'numTestVecs=', numTestVecs
-    errorCount = 0.0
-    for i in range(numTestVecs):
-        # 对数据测试
-        classifierResult = classify0(normMat[i, :], normMat[numTestVecs:m, :], datingLabels[numTestVecs:m], 3)
-        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, datingLabels[i])
-        if (classifierResult != datingLabels[i]): errorCount += 1.0
-    print "the total error rate is: %f" % (errorCount / float(numTestVecs))
-    print errorCount
-```
-
-> 使用算法: 产生简单的命令行程序，然后海伦可以输入一些特征数据以判断对方是否为自己喜欢的类型。
-
-约会网站预测函数
-
-```python
-def classifyPerson():
-    resultList = ['not at all', 'in small doses', 'in large doses']
-    percentTats = float(raw_input("percentage of time spent playing video games ?"))
-    ffMiles = float(raw_input("frequent filer miles earned per year?"))
-    iceCream = float(raw_input("liters of ice cream consumed per year?"))
-    datingDataMat, datingLabels = file2matrix('datingTestSet2.txt')
-    normMat, ranges, minVals = autoNorm(datingDataMat)
-    inArr = array([ffMiles, percentTats, iceCream])
-    classifierResult = classify0((inArr-minVals)/ranges,normMat,datingLabels, 3)
-    print "You will probably like this person: ", resultList[classifierResult - 1]
-```
-
-实际运行效果如下: 
-
-```python
->>> classifyPerson()
-percentage of time spent playing video games?10
-frequent flier miles earned per year?10000
-liters of ice cream consumed per year?0.5
-You will probably like this person: in small doses
-```
-
-
-
 ### 3.2 项目案例2: 手写数字识别系统
 
-[完整代码地址](/src/py2.x/ml/2.KNN/kNN.py): <https://github.com/apachecn/AiLearning/blob/master/src/py2.x/ml/2.KNN/kNN.py>
+> [代码地址](/src/py2.x/ml/2.KNN/kNN.py): <https://github.com/apachecn/AiLearning/blob/master/src/py2.x/ml/2.KNN/kNN.py>
 
 #### 项目概述
 
@@ -463,89 +493,13 @@ You will probably like this person: in small doses
 
 #### 开发流程
 
-```
 收集数据: 提供文本文件。
 准备数据: 编写函数 img2vector(), 将图像格式转换为分类器使用的向量格式
 分析数据: 在 Python 命令提示符中检查数据，确保它符合要求
 训练算法: 此步骤不适用于 KNN
-测试算法: 编写函数使用提供的部分数据集作为测试样本，测试样本与非测试样本的
-         区别在于测试样本是已经完成分类的数据，如果预测分类与实际类别不同，
-         则标记为一个错误
-使用算法: 本例没有完成此步骤，若你感兴趣可以构建完整的应用程序，从图像中提取
-         数字，并完成数字识别，美国的邮件分拣系统就是一个实际运行的类似系统
-```
+测试算法: 编写函数使用提供的部分数据集作为测试样本，测试样本与非测试样本的区别在于测试样本是已经完成分类的数据，如果预测分类与实际类别不同，则标记为一个错误
+使用算法: 
 
-> 收集数据: 提供文本文件
 
-目录 [trainingDigits](/data/2.KNN/trainingDigits) 中包含了大约 2000 个例子，每个例子内容如下图所示，每个数字大约有 200 个样本；目录 [testDigits](/data/2.KNN/testDigits) 中包含了大约 900 个测试数据。
-
-![knn_2_handWriting](https://gitee.com/zgf1366/pic_store/raw/master/img/20210130154029.png)
-
-> 准备数据: 编写函数 img2vector(), 将图像文本数据转换为分类器使用的向量
-
-将图像文本数据转换为向量
-
-```python
-def img2vector(filename):
-    returnVect = zeros((1,1024))
-    fr = open(filename)
-    for i in range(32):
-        lineStr = fr.readline()
-        for j in range(32):
-            returnVect[0,32*i+j] = int(lineStr[j])
-    return returnVect
-```
-
-> 分析数据: 在 Python 命令提示符中检查数据，确保它符合要求
-
-在 Python 命令行中输入下列命令测试 img2vector 函数，然后与文本编辑器打开的文件进行比较: 
-
-```python
->>> testVector = kNN.img2vector('testDigits/0_13.txt')
->>> testVector[0,0:32]
-array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
->>> testVector[0,32:64]
-array([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1., 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
-```
-
-> 训练算法: 此步骤不适用于 KNN
-
-因为测试数据每一次都要与全量的训练数据进行比较，所以这个过程是没有必要的。
-
-> 测试算法: 编写函数使用提供的部分数据集作为测试样本，如果预测分类与实际类别不同，则标记为一个错误
-
-```python
-def handwritingClassTest():
-    # 1. 导入训练数据
-    hwLabels = []
-    trainingFileList = listdir('data/2.KNN/trainingDigits')  # load the training set
-    m = len(trainingFileList)
-    trainingMat = zeros((m, 1024))
-    # hwLabels存储0～9对应的index位置， trainingMat存放的每个位置对应的图片向量
-    for i in range(m):
-        fileNameStr = trainingFileList[i]
-        fileStr = fileNameStr.split('.')[0]  # take off .txt
-        classNumStr = int(fileStr.split('_')[0])
-        hwLabels.append(classNumStr)
-        # 将 32*32的矩阵->1*1024的矩阵
-        trainingMat[i, :] = img2vector('data/2.KNN/trainingDigits/%s' % fileNameStr)
-
-    # 2. 导入测试数据
-    testFileList = listdir('data/2.KNN/testDigits')  # iterate through the test set
-    errorCount = 0.0
-    mTest = len(testFileList)
-    for i in range(mTest):
-        fileNameStr = testFileList[i]
-        fileStr = fileNameStr.split('.')[0]  # take off .txt
-        classNumStr = int(fileStr.split('_')[0])
-        vectorUnderTest = img2vector('data/2.KNN/testDigits/%s' % fileNameStr)
-        classifierResult = classify0(vectorUnderTest, trainingMat, hwLabels, 3)
-        print "the classifier came back with: %d, the real answer is: %d" % (classifierResult, classNumStr)
-        if (classifierResult != classNumStr): errorCount += 1.0
-    print "\nthe total number of errors is: %d" % errorCount
-    print "\nthe total error rate is: %f" % (errorCount / float(mTest))
-```
-
-> 使用算法: 本例没有完成此步骤，若你感兴趣可以构建完整的应用程序，从图像中提取数字，并完成数字识别，美国的邮件分拣系统就是一个实际运行的类似系统。
 
 
